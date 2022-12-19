@@ -104,6 +104,11 @@ int main()
 //	for(j=0;j<300000000; j++) { }   //commenting this out virtually guarantees the race leads to at least one thread
                                     //finishing too soon, leading to it breaking
 
+    pthread_join(thread1, NULL);
+    pthread_join(thread2, NULL);
+    pthread_join(thread3, NULL);
+    pthread_join(thread4, NULL);
+
 	//now that we've got the primes, sort them and print them out
 	sort();
 
