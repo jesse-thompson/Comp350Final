@@ -1,0 +1,9 @@
+.idea
+*.doc
+*.doc#
+*.odt
+*.odt#
+*.out
+*.pdf
+*.img
+threadprime_forclass
