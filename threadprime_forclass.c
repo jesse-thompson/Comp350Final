@@ -14,6 +14,8 @@
 int primelist[END-START];
 int primecount=0;
 
+pthread_mutex_t lock;
+
 //returns 1 if num is prime, 0 otherwise
 int isprime(int num)
 {
@@ -35,22 +37,29 @@ void delay()
 void* findprimes(int start,int end,int threadnumber)
 {
 	int p;
-
 	printf("Thread %d is about to find primes from %d to %d\n",threadnumber,start,end);
-
 	//go through the range of numbers
-	for(p=start; p<end; p++)
+    pthread_mutex_lock(&lock);
+
+    for(p=start; p<end; p++)
 	{
-		//if number p is prime, then...
+        //if number p is prime, then...
 		if(isprime(p)==1)
 		{
-			//put it into the global array
+            //BEGIN CRITICAL SECTION    putting p into the global array needs to be done sequentially
+            //put it into the global array
 			primelist[primecount]=p;
+            for (int b = 0; b < 1000; ++b) {    //this delay makes it break
+                delay();
+            }
 			primecount++;
-		}
+            //END CRITICAL SECTION
+            pthread_mutex_unlock(&lock);
+        }
 	}
+    pthread_mutex_lock(&lock);
 
-	printf("Thread %d is done.\n",threadnumber);
+    printf("Thread %d is done.\n",threadnumber);
 }
 
 //puts the prime list in order
@@ -68,7 +77,7 @@ void sort()
 
 void* threadfunc1()
 {
-	findprimes(START,START+RANGE,1);
+    findprimes(START,START+RANGE,1);
 }
 
 void* threadfunc2()
@@ -100,14 +109,15 @@ int main()
 
 
 	//make a really really long delay for the threads to finish
-//	int j;
-//	for(j=0;j<300000000; j++) { }   //commenting this out virtually guarantees the race leads to at least one thread
+	int j;
+	for(j=0;j<300000000; j++) { }   //commenting this out virtually guarantees the race leads to at least one thread
                                     //finishing too soon, leading to it breaking
 
-    pthread_join(thread1, NULL);
-    pthread_join(thread2, NULL);
-    pthread_join(thread3, NULL);
-    pthread_join(thread4, NULL);
+    //these are a proper replacement of the delay, ensuring the threads complete before moving on
+//    pthread_join(thread1, NULL);
+//    pthread_join(thread2, NULL);
+//    pthread_join(thread3, NULL);
+//    pthread_join(thread4, NULL);
 
 	//now that we've got the primes, sort them and print them out
 	sort();
