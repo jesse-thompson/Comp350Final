@@ -100,8 +100,9 @@ int main()
 
 
 	//make a really really long delay for the threads to finish
-	int j;
-	for(j=0;j<300000000; j++) { }
+//	int j;
+//	for(j=0;j<300000000; j++) { }   //commenting this out virtually guarantees the race leads to at least one thread
+                                    //finishing too soon, leading to it breaking
 
 	//now that we've got the primes, sort them and print them out
 	sort();
